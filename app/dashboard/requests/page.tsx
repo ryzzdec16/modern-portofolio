@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Card } from "@/components/UI/Card";
 import { Button } from "@/components/UI/Button";
 import { Modal } from "@/components/UI/Modal";
-import {supabase} from "@/lib/supabaseClient";
+import supabase from "@/lib/supabaseClient";
 import toast, { Toaster } from "react-hot-toast";
 
 type ApplyRequest = {
