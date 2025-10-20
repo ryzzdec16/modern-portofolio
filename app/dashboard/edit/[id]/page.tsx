@@ -2,119 +2,126 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
+import { Project } from "@/components/ProjectCard";
 
 export default function EditProjectPage() {
   const router = useRouter();
-  const { id } = useParams();
-  const [loading, setLoading] = useState(true);
-  const [form, setForm] = useState({
-    title: "",
-    description: "",
-    tech: "",
-    github_url: "",
-    demo_url: "",
-    image: "",
-  });
+  const params = useParams();
+  const id = params.id;
 
-  // 🔹 Ambil data project berdasar ID
+  const [project, setProject] = useState<Project | null>(null);
+  const [loading, setLoading] = useState(false);
+
   useEffect(() => {
-    async function fetchProject() {
-      const res = await fetch(`/api/projects/${id}`);
-      const data = await res.json();
-      if (res.ok) {
-        setForm({
-          title: data.title || "",
-          description: data.description || "",
-          tech: data.tech?.join(", ") || "",
-          github_url: data.github_url || "",
-          demo_url: data.demo_url || "",
-          image: data.image || "",
-        });
+    const fetchProject = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(`/api/projects`);
+        const data: Project[] = await res.json();
+        const proj = data.find((p) => p.id === Number(id));
+        setProject(proj ?? null);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
-    }
-    if (id) fetchProject();
+    };
+    fetchProject();
   }, [id]);
 
-  // 🔹 Update project ke API
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    const res = await fetch(`/api/projects/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        ...form,
-        tech: form.tech.split(",").map((t) => t.trim()),
-      }),
-    });
-    if (res.ok) {
-      alert("✅ Project berhasil diupdate!");
-      router.push("/dashboard");
-    } else {
-      const err = await res.json();
-      alert("Gagal update: " + err.error);
-    }
-  }
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setProject((prev) => (prev ? { ...prev, [name]: value } : prev));
+  };
 
-  if (loading) return <p className="text-gray-400 p-6">Loading project...</p>;
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!project) return;
+
+    try {
+      const res = await fetch(`/api/projects/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(project),
+      });
+
+      if (res.ok) {
+        alert("Project berhasil diperbarui ✅");
+        router.push("/dashboard");
+      } else {
+        const err = await res.json();
+        alert("Gagal update project: " + err.error);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Terjadi kesalahan saat update project.");
+    }
+  };
+
+  if (loading)
+    return <p className="text-gray-400 text-center mt-10">Memuat project...</p>;
+  if (!project)
+    return (
+      <p className="text-red-400 text-center mt-10">Project tidak ditemukan</p>
+    );
 
   return (
-    <div className="max-w-2xl mx-auto py-10">
+    <div className="max-w-xl mx-auto p-6">
       <h1 className="text-2xl font-bold text-cyan-400 mb-6">Edit Project</h1>
-
       <form onSubmit={handleSubmit} className="space-y-4">
         <input
           type="text"
-          placeholder="Title"
-          value={form.title}
-          onChange={(e) => setForm({ ...form, title: e.target.value })}
-          className="w-full bg-gray-800 border border-gray-700 p-2 rounded-md"
+          name="title"
+          value={project.title}
+          onChange={handleChange}
+          className="w-full bg-gray-800 p-2 rounded"
+          placeholder="Judul Project"
           required
         />
-
         <textarea
-          placeholder="Description"
-          value={form.description}
-          onChange={(e) => setForm({ ...form, description: e.target.value })}
-          className="w-full bg-gray-800 border border-gray-700 p-2 rounded-md"
+          name="description"
+          value={project.description}
+          onChange={handleChange}
+          className="w-full bg-gray-800 p-2 rounded"
           rows={3}
+          placeholder="Deskripsi Project"
+          required
         />
-
         <input
           type="text"
+          name="tech"
+          value={project.tech.join(", ")}
+          onChange={(e) =>
+            setProject((p) =>
+              p
+                ? { ...p, tech: e.target.value.split(",").map((t) => t.trim()) }
+                : p
+            )
+          }
+          className="w-full bg-gray-800 p-2 rounded"
           placeholder="Tech (pisahkan dengan koma)"
-          value={form.tech}
-          onChange={(e) => setForm({ ...form, tech: e.target.value })}
-          className="w-full bg-gray-800 border border-gray-700 p-2 rounded-md"
         />
-
         <input
           type="text"
+          name="github_url"
+          value={project.github_url ?? ""}
+          onChange={handleChange}
+          className="w-full bg-gray-800 p-2 rounded"
           placeholder="GitHub URL"
-          value={form.github_url}
-          onChange={(e) => setForm({ ...form, github_url: e.target.value })}
-          className="w-full bg-gray-800 border border-gray-700 p-2 rounded-md"
         />
-
         <input
           type="text"
+          name="demo_url"
+          value={project.demo_url ?? ""}
+          onChange={handleChange}
+          className="w-full bg-gray-800 p-2 rounded"
           placeholder="Demo URL"
-          value={form.demo_url}
-          onChange={(e) => setForm({ ...form, demo_url: e.target.value })}
-          className="w-full bg-gray-800 border border-gray-700 p-2 rounded-md"
         />
-
-        <input
-          type="text"
-          placeholder="Image URL"
-          value={form.image}
-          onChange={(e) => setForm({ ...form, image: e.target.value })}
-          className="w-full bg-gray-800 border border-gray-700 p-2 rounded-md"
-        />
-
         <button
           type="submit"
-          className="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded-md"
+          className="w-full bg-cyan-500 hover:bg-cyan-400 text-black font-bold py-2 rounded"
         >
           Simpan Perubahan
         </button>

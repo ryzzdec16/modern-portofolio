@@ -13,6 +13,7 @@ export default function NewProjectPage() {
     github_url: '',
     demo_url: '',
     image: null as File | null,
+  
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {

@@ -61,6 +61,12 @@ export default function AdminLayout({
             href="/dashboard/requests"
             className="px-4 py-2 rounded-lg transition-all duration-200 text-gray-300 hover:text-white hover:bg-gray-800 focus:ring-2 focus:ring-cyan-500"
           >
+            Edit
+          </Link>
+          <Link
+            href="/dashboard/requests"
+            className="px-4 py-2 rounded-lg transition-all duration-200 text-gray-300 hover:text-white hover:bg-gray-800 focus:ring-2 focus:ring-cyan-500"
+          >
             Requests
           </Link>
           <button

@@ -1,14 +1,16 @@
 "use client";
-
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import ProjectCard, { Project } from "@/components/ProjectCard";
-import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
 
 export default function DashboardPage() {
+  const router = useRouter();
   const [projects, setProjects] = useState<Project[]>([]);
-  const [loading, setLoading] = useState(false); // default false, biar gak double
+  const [loading, setLoading] = useState(false);
 
+  // 🔄 Fetch Projects
   const fetchProjects = async () => {
     setLoading(true);
     try {
@@ -22,11 +24,32 @@ export default function DashboardPage() {
     }
   };
 
-  // Delay fetch sedikit biar gak tabrakan sama loader global
   useEffect(() => {
-    const timer = setTimeout(fetchProjects, 300);
+    const timer = setTimeout(fetchProjects, 300); // delay biar smooth
     return () => clearTimeout(timer);
   }, []);
+
+  // ✏️ Edit Project
+  const handleEdit = (project: Project) => {
+    router.push(`/dashboard/edit/${project.id}`);
+  };
+
+  // 🗑️ Delete Project
+  const handleDelete = async (id: number) => {
+    if (!confirm("Yakin ingin menghapus project ini?")) return;
+    try {
+      const res = await fetch(`/api/projects/${id}`, { method: "DELETE" });
+      if (res.ok) {
+        setProjects((prev) => prev.filter((p) => p.id !== id));
+        alert("Project berhasil dihapus ✅");
+      } else {
+        const err = await res.json();
+        alert("Gagal hapus project: " + err.error);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   return (
     <div className="max-w-7xl mx-auto p-6">
@@ -80,7 +103,12 @@ export default function DashboardPage() {
             className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3"
           >
             {projects.map((project) => (
-              <ProjectCard key={project.id} project={project} />
+              <ProjectCard
+                key={project.id}
+                project={project}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+              />
             ))}
           </motion.div>
         )}

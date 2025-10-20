@@ -34,7 +34,6 @@ export default function RequestsPage() {
   const [search, setSearch] = useState("");
   const [user, setUser] = useState<any>(null);
 
-  // ✅ ambil user login dari Supabase
   useEffect(() => {
     const { data: listener } = supabase.auth.onAuthStateChange(
       (_event, session) => {

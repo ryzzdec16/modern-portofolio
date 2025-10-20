@@ -1,41 +1,47 @@
 'use client';
 import { motion } from 'framer-motion';
+import { Project } from '@/lib/types';
 
-export interface Request {
-  id: number;
-  client: string;
-  email: string;
-  projectTitle: string;
-  message: string;
-  status: 'pending' | 'reviewed' | 'done';
+import { Github, Globe, Trash2, Edit } from 'lucide-react';
+
+interface Props {
+  project: Project;
+  onEdit?: (project: Project) => void;
+  onDelete?: (id: number) => void;
 }
 
-export function RequestCard({ request }: { request: Request }) {
-  const statusColor = {
-    pending: 'bg-yellow-500/20 text-yellow-400',
-    reviewed: 'bg-blue-500/20 text-blue-400',
-    done: 'bg-green-500/20 text-green-400',
-  }[request.status];
-
+export default function ProjectCard({ project, onEdit, onDelete }: Props) {
   return (
     <motion.div
-      whileHover={{ scale: 1.02 }}
+      whileHover={{ scale: 1.04 }}
       transition={{ duration: 0.2 }}
-      className="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow-md hover:border-cyan-500 transition"
+      className="group relative bg-gray-950 border border-gray-800 rounded-2xl overflow-hidden cursor-pointer p-4 flex flex-col"
     >
-      <h2 className="text-lg font-semibold text-cyan-300 mb-1">
-        {request.projectTitle}
-      </h2>
-      <p className="text-gray-400 text-sm mb-3">{request.message}</p>
-      <div className="text-sm text-gray-300 mb-2">
-        <span className="font-medium">Client:</span> {request.client}
+      <img src={project.image} alt={project.title} className="w-full h-40 object-cover rounded-lg mb-3" />
+      <h3 className="text-cyan-400 font-semibold text-lg">{project.title}</h3>
+      <p className="text-gray-400 text-sm line-clamp-2">{project.description}</p>
+      <div className="flex gap-2 mt-2 flex-wrap">
+        {project.tech.map((t) => (
+          <span key={t} className="text-xs bg-gray-800/60 border border-gray-700 px-2 py-1 rounded-full text-gray-300">
+            {t}
+          </span>
+        ))}
       </div>
-      <div className="text-sm text-gray-400 mb-4">{request.email}</div>
-      <span
-        className={`text-xs font-semibold px-2 py-1 rounded-full ${statusColor}`}
-      >
-        {request.status}
-      </span>
+
+      <div className="flex gap-2 mt-3">
+        {project.github_url && (
+          <a href={project.github_url} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white">
+            <Github size={16} />
+          </a>
+        )}
+        {project.demo_url && (
+          <a href={project.demo_url} target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:text-cyan-300">
+            <Globe size={16} />
+          </a>
+        )}
+        {onEdit && <Edit size={16} className="cursor-pointer text-blue-400 hover:text-blue-300" onClick={() => onEdit(project)} />}
+        {onDelete && <Trash2 size={16} className="cursor-pointer text-red-500 hover:text-red-400" onClick={() => onDelete(project.id)} />}
+      </div>
     </motion.div>
   );
 }
