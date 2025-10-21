@@ -1,15 +1,17 @@
 "use client";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-import { X } from "lucide-react";
+import { X, Edit, Trash2, Github, Globe } from "lucide-react";
 import { Project } from "./ProjectCard";
 
 interface Props {
   project: Project | null;
   onClose: () => void;
+  onEdit?: (project: Project) => void;
+  onDelete?: (id: number) => void;
 }
 
-export function ProjectModal({ project, onClose }: Props) {
+export function ProjectModal({ project, onClose, onEdit, onDelete }: Props) {
   if (!project) return null;
 
   return (
@@ -52,37 +54,39 @@ export function ProjectModal({ project, onClose }: Props) {
                 />
               </div>
 
-              {/* Detail */}
-              <div className="flex-1 flex flex-col justify-center">
-                <h2 className="text-3xl font-bold text-cyan-400 mb-3">
-                  {project.title}
-                </h2>
-                <p className="text-gray-300 mb-5 leading-relaxed">
-                  {project.description}
-                </p>
+              {/* Detail Project */}
+              <div className="flex-1 flex flex-col justify-between">
+                <div>
+                  <h2 className="text-3xl font-bold text-cyan-400 mb-3">
+                    {project.title}
+                  </h2>
+                  <p className="text-gray-300 mb-5 leading-relaxed">
+                    {project.description}
+                  </p>
 
-                {/* Tech Stack */}
-                <div className="flex flex-wrap gap-2 mb-6">
-                  {project.tech.map((t) => (
-                    <span
-                      key={t}
-                      className="px-3 py-1 text-xs bg-gray-800/70 rounded-full text-gray-300 border border-gray-700"
-                    >
-                      {t}
-                    </span>
-                  ))}
+                  {/* Tech Stack */}
+                  <div className="flex flex-wrap gap-2 mb-6">
+                    {project.tech.map((t) => (
+                      <span
+                        key={t}
+                        className="px-3 py-1 text-xs bg-gray-800/70 rounded-full text-gray-300 border border-gray-700"
+                      >
+                        {t}
+                      </span>
+                    ))}
+                  </div>
                 </div>
 
-                {/* Tombol Link */}
-                <div className="flex gap-3">
+                {/* Tombol Aksi */}
+                <div className="flex flex-wrap gap-3">
                   {project.github_url && (
                     <a
                       href={project.github_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-200 rounded-lg text-sm transition"
+                      className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-200 rounded-lg text-sm transition flex items-center gap-1"
                     >
-                      Lihat Code
+                      <Github size={16} /> Code
                     </a>
                   )}
                   {project.demo_url && (
@@ -90,10 +94,28 @@ export function ProjectModal({ project, onClose }: Props) {
                       href={project.demo_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="px-4 py-2 bg-cyan-500 hover:bg-cyan-400 text-black font-medium rounded-lg text-sm transition"
+                      className="px-4 py-2 bg-cyan-500 hover:bg-cyan-400 text-black font-medium rounded-lg text-sm transition flex items-center gap-1"
                     >
-                      Demo
+                      <Globe size={16} /> Demo
                     </a>
+                  )}
+
+                  {onEdit && (
+                    <button
+                      onClick={() => onEdit(project)}
+                      className="px-4 py-2 bg-blue-500 hover:bg-blue-400 text-white rounded-lg text-sm transition flex items-center gap-1"
+                    >
+                      <Edit size={16} /> Edit
+                    </button>
+                  )}
+
+                  {onDelete && (
+                    <button
+                      onClick={() => onDelete(project.id)}
+                      className="px-4 py-2 bg-red-500 hover:bg-red-400 text-white rounded-lg text-sm transition flex items-center gap-1"
+                    >
+                      <Trash2 size={16} /> Delete
+                    </button>
                   )}
                 </div>
               </div>

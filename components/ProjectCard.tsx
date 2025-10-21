@@ -15,12 +15,14 @@ export interface Project {
 
 interface ProjectCardProps {
   project: Project;
+  onClick?: () => void; // ✅ optional onClick
   onEdit?: (project: Project) => void;
   onDelete?: (id: number) => void;
 }
 
 export default function ProjectCard({
   project,
+  onClick,
   onEdit,
   onDelete,
 }: ProjectCardProps) {
@@ -33,7 +35,10 @@ export default function ProjectCard({
         whileHover={{ scale: 1.03 }}
         transition={{ duration: 0.2 }}
         className="group relative bg-gray-950/60 border border-gray-800/70 rounded-2xl overflow-hidden cursor-pointer flex flex-col"
-        onClick={() => setModalOpen(true)}
+        onClick={() => {
+          setModalOpen(true);
+          if (onClick) onClick(); // ✅ jalankan props onClick jika ada
+        }}
       >
         {project.image && (
           <div className="relative w-full h-48 overflow-hidden">
@@ -127,9 +132,9 @@ export default function ProjectCard({
                         href={project.github_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-200 rounded-lg text-sm transition"
+                        className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-200 rounded-lg text-sm transition flex items-center gap-1"
                       >
-                        <Github size={16} className="inline mr-1" /> Code
+                        <Github size={16} /> Code
                       </a>
                     )}
                     {project.demo_url && (
@@ -137,9 +142,9 @@ export default function ProjectCard({
                         href={project.demo_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="px-4 py-2 bg-cyan-500 hover:bg-cyan-400 text-black font-medium rounded-lg text-sm transition"
+                        className="px-4 py-2 bg-cyan-500 hover:bg-cyan-400 text-black font-medium rounded-lg text-sm transition flex items-center gap-1"
                       >
-                        <Globe size={16} className="inline mr-1" /> Demo
+                        <Globe size={16} /> Demo
                       </a>
                     )}
                     {onEdit && (
